@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>오디세우스의 귀향길</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;700;900&family=Nanum+Pen+Script&family=Gugi&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#efe7d4; --paper:#fffcf3; --ink:#1d2b3e; --muted:#5f6b7a;
+  --sea:#1f4e79; --sea-d:#163a5c; --terra:#b5532d; --gold:#b08a3e;
+  --line:#dcd2bb; --shadow:0 14px 34px rgba(30,40,60,.13);
+  --serif:'Noto Serif KR','Nanum Myeongjo',serif; --sans:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;
+  --latin:'Cormorant Garamond',Georgia,serif; --pen:'Nanum Pen Script',cursive;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden;
+  background-image:radial-gradient(ellipse at 0% 0%,rgba(255,252,243,.95),transparent 50%),radial-gradient(ellipse at 100% 100%,rgba(31,78,121,.16),transparent 55%);}
+button,input{font:inherit;-webkit-tap-highlight-color:transparent}
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:14px 20px 16px;max-width:1500px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:2px 4px 10px;flex:none}
+.brand{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.brand h1{margin:0;font-family:'Gugi',var(--serif);font-weight:400;font-size:clamp(28px,3.2vw,44px);letter-spacing:-.04em}
+.brand h1 em{font-style:normal;color:var(--sea)}
+.brand .sub{font-family:var(--pen);font-size:clamp(24px,2.4vw,32px);color:var(--muted)}
+.event{font-family:var(--latin);font-weight:700;font-size:clamp(15px,1.4vw,19px);letter-spacing:.18em;color:var(--gold);text-transform:uppercase;white-space:nowrap}
+.meander{height:14px;margin:0 0 14px;flex:none;opacity:.9;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='14'%3E%3Cpath d='M0 13H24M2 13V2H18V10H8V6H13' fill='none' stroke='%23b08a3e' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-height:0;display:flex;flex-direction:column;padding:16px;position:relative;overflow:hidden}
+.ptitle{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:700;font-size:clamp(17px,1.6vw,21px);margin:0 0 12px;flex:none}
+.ptitle b{font-family:var(--latin);color:var(--gold);font-size:1.5em;line-height:1}
+/* camera */
+.stage{flex:1;min-height:0;position:relative;border-radius:10px;overflow:hidden;background:#14202f;display:flex;align-items:center;justify-content:center}
+.cam{position:relative;height:100%;max-width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:6px}
+.stage video,.stage canvas.shot{width:100%;height:100%;display:block}
+.stage video{object-fit:cover;transform:scaleX(-1)}
+.stage canvas.shot{object-fit:cover}
+.frame{position:absolute;inset:14px;border:2px solid rgba(255,250,240,.6);border-radius:8px;pointer-events:none}
+.frame span{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:#fff6e6;font-size:clamp(14px,1.3vw,17px);text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.cam.taken .frame{display:none}
+.stage .msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff6e6;text-align:center;padding:20px;font-size:clamp(16px,1.6vw,20px);line-height:1.6;background:#14202f}
+.count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-family:var(--latin);font-weight:700;font-size:clamp(120px,18vw,220px);color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.45)}
+.count.on{display:flex;animation:pop .9s ease-out both}
+@keyframes pop{0%{transform:scale(1.5);opacity:0}25%{opacity:1}100%{transform:scale(.85);opacity:.15}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.on{animation:flash .5s ease-out}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.actions{display:flex;gap:10px;margin-top:12px;flex:none}
+.btn{flex:1;min-height:64px;border-radius:12px;border:2px solid var(--sea);background:var(--sea);color:#fffcf3;font-weight:700;font-size:clamp(18px,1.8vw,23px);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s,background .2s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45}
+.btn.terra{background:var(--terra);border-color:var(--terra)}
+.btn.sec{background:transparent;color:var(--sea-d);border-color:var(--line)}
+.btn.big{min-height:76px;font-size:clamp(21px,2.1vw,27px)}
+.btn svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:2}
+.hidden{display:none!important}
+/* passport panel */
+.body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:12px;padding-right:2px}
+.form{display:flex;gap:10px;flex:none}
+.form label{flex:1;display:flex;flex-direction:column;gap:6px;font-size:clamp(14px,1.3vw,16px);color:var(--muted);font-weight:500}
+.form label:first-child{flex:1.3}
+.form input{width:100%;min-height:56px;border:2px solid var(--line);border-radius:10px;background:#fff;padding:8px 14px;font-size:clamp(19px,1.9vw,24px);color:var(--ink);outline:none}
+.form input:focus{border-color:var(--sea)}
+.invite{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;color:var(--muted);font-size:clamp(16px,1.5vw,19px);line-height:1.7}
+.invite svg{width:170px;height:110px}
+.invite strong{font-family:var(--serif);color:var(--ink);font-size:1.2em}
+.route{list-style:none;margin:4px 0 0;padding:0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.route li{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 5px;background:#fff;font-family:var(--serif);font-weight:700;color:var(--ink);font-size:.9em}
+.route li b{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--sea);color:#fff;align-items:center;justify-content:center;font-family:var(--latin);font-size:1em}
+.no{font-family:var(--latin);font-weight:700;letter-spacing:.12em;color:var(--muted);font-size:clamp(14px,1.3vw,17px)}
+.motto{font-family:var(--pen);font-size:clamp(26px,2.5vw,34px);line-height:1.35;color:var(--terra);text-align:center;word-break:keep-all;padding:0 6px}
+.reveal{animation:rise .6s ease-out both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.preview{display:flex;justify-content:center}
+.preview img{width:min(100%,300px);height:auto;box-shadow:0 10px 24px rgba(20,30,50,.18);border:1px solid #eee;background:#fff}
+.hint{font-size:clamp(14px,1.3vw,16px);color:var(--muted);text-align:center;margin:8px 0 0;min-height:1.4em;flex:none}
+.toprint{display:flex;flex-direction:column;gap:8px;flex:none;margin-top:10px}
+.row{display:flex;gap:8px}
+.row .btn{min-height:54px;font-size:clamp(15px,1.4vw,18px)}
+@media (max-width:820px),(orientation:portrait){
+  body{overflow:auto} .app{height:auto;min-height:100vh}
+  main{grid-template-columns:1fr} .stage{min-height:62vw}
+  .event{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><h1>오디세우스의 <em>귀향길</em></h1><span class="sub" id="subTitle"></span></div>
+    <div class="event" id="eventTitle"></div>
+  </header>
+  <div class="meander"></div>
+  <main>
+    <section class="panel">
+      <div class="ptitle"><b>I</b>사진 찍기</div>
+      <div class="stage">
+        <div class="cam" id="cam"><video id="video" playsinline autoplay muted></video>
+        <canvas class="shot hidden" id="shot"></canvas>
+        <div class="frame"><span>화면 안에 들어와 주세요</span></div></div>
+        <div class="msg hidden" id="camMsg"></div>
+        <div class="count" id="count"></div>
+        <div class="flash" id="flash"></div>
+      </div>
+      <div class="actions">
+        <button class="btn big" id="snapBtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg>사진 찍기</button>
+        <button class="btn big hidden" id="fileBtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg>카메라로 찍기</button>
+        <button class="btn sec big hidden" id="retakeBtn">다시 찍기</button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" capture="user" class="hidden">
+    </section>
+    <section class="panel">
+      <div class="ptitle"><b>II</b>미션 도장판 받기</div>
+      <div class="body">
+        <div class="form">
+          <label>항해자 이름<input id="nameIn" maxlength="12" placeholder="이름을 써 주세요" autocomplete="off"></label>
+        </div>
+        <div class="invite" id="invite">
+          <svg viewBox="0 0 170 110" fill="none" stroke="#1f4e79" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M85 74V14"/><path d="M55 20h60"/>
+            <path d="M57 22h56q6 18 0 36H57q-6-18 0-36z" fill="#f3e6c8"/>
+            <path d="M58 34h54M58 46h54" stroke="#b08a3e"/>
+            <path d="M20 72h130q-20 22-65 22T20 72z" fill="#1f4e79"/>
+            <path d="M150 72q14-12 6-24M20 72Q8 60 14 50"/>
+            <path d="M10 102q7-7 14 0t14 0 14 0 14 0 14 0 14 0 14 0 14 0 14 0 14 0 14 0" stroke="#b08a3e"/>
+          </svg>
+          <div><strong>이름을 쓰고, 왼쪽에서 사진을 찍어 주세요</strong><br><span id="introTxt"></span></div>
+          <ul class="route" id="routeList"></ul>
+        </div>
+        <div class="motto hidden" id="motto"></div>
+        <div class="preview hidden" id="preview"><img id="previewImg" alt="도장판 미리보기"></div>
+      </div>
+      <div class="toprint hidden" id="toPrint">
+        <button class="btn terra big" id="printBtn"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>도장판 출력</button>
+        <div class="row">
+          <button class="btn sec" id="redrawBtn">다른 응원 문구</button>
+          <button class="btn sec" id="homeBtn">처음으로</button>
+        </div>
+      </div>
+      <p class="hint" id="hint"></p>
+    </section>
+  </main>
+</div>
+<div id="printArea" style="display:none"></div>
+<script>
+/* =====================================================================
+   오디세우스의 귀향길 미션 도장판 — 설정 (여기만 고치면 됩니다)
+   ===================================================================== */
+var CREDIT        = '2026 헤윰도서관 도서부';   // 맨 아래와 화면 오른쪽 위에 들어가는 문구
+var SUB_TITLE     = '이타카로 가는 독서 항해';
+var INTRO         = "참가자는 오디세우스의 선원이 되어 신화 속 미션을 수행하고, '항해 여권'에 도장을 모아 이타카로 귀환한다.";
+var AUTO_HOME_SEC = 40;                        // 출력 후 이 시간(초)이 지나면 처음 화면으로
+var COUNTDOWN     = 3;                         // 사진 찍기 전 카운트다운(초)
+
+/* 도장 받는 미션 4곳 — 2줄 2칸으로 찍힙니다. 부스 이름과 미션을 자유롭게 고치세요. */
+var STAMPS = [
+ {stage:'동굴', en:'CAVE',       title:'키클롭스의 동굴 탈출',  mission:'털실 거미줄을 뚫고 외눈 거인의 눈에 명중! (거인은 안 아파요)'},
+ {stage:'항해', en:'VOYAGE',     title:'스킬라와 카리브디스',   mission:'다섯 섬을 콩콩 건너고 소용돌이 왕복! 발 헛디디면 젖은 셈 치기'},
+ {stage:'귀향', en:'DISGUISE',   title:'변장한 오디세우스 찾기', mission:'선생님들의 어린 시절 사진 맞히기. 웃음 참기 실패해도 통과!'},
+ {stage:'귀환', en:'HOMECOMING', title:'페넬로페의 활',         mission:'화살 3발 중 2발 명중! 구혼자들은 지금 떨고 있습니다'}
+];
+var REWARD     = '도장 4개면 이타카 입국 허가!\n돌아가고 싶은 장소를 한 문장 남기고 보물 뽑기!';   // \n 자리에서 줄이 바뀝니다
+var OPTIONAL   = '선택 미션 · 이타카의 열쇠: 좋아하는 책 표지로 NFC 도서관 키링 만들기';  // 필요 없으면 '' 로 비우세요
+var STAMP_BOX = 256;       // 도장 칸 크기(점). 256점 ≈ 32mm (2칸 배치라 256이 최대)
+
+/* 영수증 프린터 */
+var PRINTER_NAME = '';     // 블루투스 프린터 이름 일부 (비우면 CPP·Printer·POS 이름을 자동으로 찾음)
+var CUT_MODE = 66;         // 66 = 부분 자르기, 65 = 완전히 자르기
+var FEED_LINES = 1;        // 자르기 전 용지 이송 줄 수
+
+/* 도장판에 찍히는 응원 문구 (무작위) */
+var MOTTOS = [
+ '오디세우스는 집까지 20년 걸렸습니다. 당신은 저녁 먹기 전에 가세요.',
+ '세이렌이 노래를 불러도 직진! 단, 간식 코너는 예외.',
+ '거인의 눈은 하나, 당신이 읽은 책은 여러 권!',
+ '길을 잃었다면 사서 선생님께 물어보세요. 신보다 빠릅니다.',
+ '노는 팔로 젓고, 책은 눈으로 젓습니다.',
+ '소용돌이보다 무서운 건 반납 기한입니다.',
+ '페넬로페는 기다려 줍니다. 연체료는 기다려 주지 않습니다.',
+ '멀미가 나면 잠시 책을 덮고 먼 산을 보세요. 바다밖에 없지만요.'
+];
+</script>
+<script>
+/* ===== 아래부터는 프로그램 코드입니다 ===== */
+
+function $(id){return document.getElementById(id);}
+function esc(t){var d=document.createElement('div');d.textContent=String(t==null?'':t);return d.innerHTML;}
+function pad(n){return n<10?'0'+n:''+n;}
+function pick(arr,not){if(arr.length<2)return arr[0];var x;do{x=arr[Math.floor(Math.random()*arr.length)];}while(x===not);return x;}
+
+var PHOTO_W=1056,PHOTO_H=792;         // 사진 (4:3 가로)
+var state={photo:null,motto:null,receipt:null},stream=null,homeTimer=null,busy=false,renderToken=0,nameTimer=null;
+
+$('subTitle').textContent=SUB_TITLE;
+$('introTxt').textContent=INTRO;
+$('eventTitle').textContent=CREDIT;
+$('routeList').innerHTML=STAMPS.map(function(s,i){return '<li><b>'+(i+1)+'</b>'+esc(s.title)+'</li>';}).join('');
+
+/* ---------------- 카메라 ---------------- */
+var CAM_TRIES=[
+ {video:{facingMode:'user',width:{ideal:1280},height:{ideal:960}},audio:false},
+ {video:{facingMode:'user'},audio:false},
+ {video:true,audio:false}
+];
+var CAM_WHY={
+ NotAllowedError:'카메라 권한이 꺼져 있어요. Fully Kiosk의 Enable Webcam Access와 안드로이드 앱 권한(카메라)을 확인해 주세요.',
+ SecurityError:'보안 설정 때문에 카메라를 쓸 수 없어요. https 주소로 열었는지 확인해 주세요.',
+ NotReadableError:'다른 앱이 카메라를 쓰고 있어요. 다른 앱을 닫고 [카메라 다시 연결]을 눌러 주세요.',
+ NotFoundError:'카메라를 찾지 못했어요.',
+ OverconstrainedError:'이 카메라에 맞는 설정을 찾지 못했어요.',
+ NoFrame:'카메라는 켜졌지만 화면이 들어오지 않아요.',
+ NoApi:'이 브라우저에서는 화면 안에서 카메라를 켤 수 없어요.'
+};
+function stopStream(){
+ if(stream){try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
+ stream=null;
+}
+function startCamera(){
+ var v=$('video');
+ stopStream();
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){useFileFallback('NoApi');return;}
+ var m=$('camMsg');m.classList.remove('hidden');m.innerHTML='<div>카메라를 켜는 중이에요…</div>';
+ $('snapBtn').classList.add('hidden');$('fileBtn').classList.add('hidden');
+ var i=0,lastErr=null;
+ (function next(){
+  if(i>=CAM_TRIES.length){useFileFallback(lastErr&&lastErr.name);return;}
+  navigator.mediaDevices.getUserMedia(CAM_TRIES[i++]).then(function(s){
+   stream=s;v.srcObject=s;v.setAttribute('playsinline','');v.muted=true;
+   try{var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}
+   var t0=Date.now();
+   (function waitFrame(){
+    if(v.videoWidth>0){showLive();return;}
+    if(Date.now()-t0>5000){stopStream();lastErr={name:'NoFrame'};next();return;}
+    setTimeout(waitFrame,200);
+   })();
+  }).catch(function(err){
+   lastErr=err;
+   if(err&&(err.name==='NotAllowedError'||err.name==='SecurityError')){useFileFallback(err.name);return;}
+   next();
+  });
+ })();
+}
+function showLive(){
+ $('cam').classList.remove('taken');
+ $('video').classList.remove('hidden');$('shot').classList.add('hidden');$('camMsg').classList.add('hidden');
+ $('snapBtn').classList.remove('hidden');$('fileBtn').classList.add('hidden');$('retakeBtn').classList.add('hidden');
+}
+function useFileFallback(reason){
+ $('video').classList.add('hidden');
+ var why=CAM_WHY[reason]||'화면 안에서 카메라를 켜지 못했어요.';
+ var m=$('camMsg');m.classList.remove('hidden');
+ m.innerHTML='<div style="font-size:1.3em;font-weight:700">아래 [카메라로 찍기] 버튼으로<br>사진을 찍어 주세요</div>'+
+  '<div style="opacity:.75;font-size:.85em">'+esc(why)+(reason?' ('+esc(reason)+')':'')+'</div>'+
+  '<button type="button" id="reconBtn" style="margin-top:6px;padding:10px 18px;border-radius:10px;border:1px solid rgba(255,250,240,.7);background:transparent;color:#fff6e6;font-size:1em">카메라 다시 연결</button>';
+ $('reconBtn').onclick=function(){startCamera();};
+ $('snapBtn').classList.add('hidden');$('fileBtn').classList.remove('hidden');
+}
+document.addEventListener('visibilitychange',function(){
+ if(document.visibilityState==='visible'&&stream&&!stream.active&&!state.photo)startCamera();
+});
+$('fileBtn').onclick=function(){$('fileInput').value='';$('fileInput').click();};
+$('fileInput').onchange=function(e){
+ var f=e.target.files&&e.target.files[0];if(!f)return;
+ var r=new FileReader();
+ r.onload=function(){var img=new Image();img.onload=function(){capture(img,img.naturalWidth,img.naturalHeight,false);};img.src=r.result;};
+ r.readAsDataURL(f);
+};
+$('snapBtn').onclick=function(){
+ if(busy)return;busy=true;$('snapBtn').disabled=true;
+ var n=COUNTDOWN,c=$('count');
+ (function tick(){
+  if(n<=0){c.classList.remove('on');c.textContent='';
+   var v=$('video');$('flash').classList.remove('on');void $('flash').offsetWidth;$('flash').classList.add('on');
+   capture(v,v.videoWidth,v.videoHeight,true);busy=false;$('snapBtn').disabled=false;return;}
+  c.textContent=n;c.classList.remove('on');void c.offsetWidth;c.classList.add('on');n--;setTimeout(tick,900);
+ })();
+};
+/* 가운데를 4:3 가로로 잘라 저장 (셀카 화면과 같도록 좌우 반전) */
+function capture(src,sw,sh,mirror){
+ if(!sw||!sh)return;
+ var cv=document.createElement('canvas');cv.width=PHOTO_W;cv.height=PHOTO_H;
+ var x=cv.getContext('2d'),r=PHOTO_W/PHOTO_H,cw=sw,ch=sh;
+ if(sw/sh>r)cw=sh*r;else ch=sw/r;
+ x.save();if(mirror){x.translate(cv.width,0);x.scale(-1,1);}
+ x.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,cv.width,cv.height);x.restore();
+ state.photo=cv;
+ var shot=$('shot');shot.width=cv.width;shot.height=cv.height;shot.getContext('2d').drawImage(cv,0,0);
+ $('cam').classList.add('taken');
+ shot.classList.remove('hidden');$('video').classList.add('hidden');$('camMsg').classList.add('hidden');
+ $('snapBtn').classList.add('hidden');$('fileBtn').classList.add('hidden');$('retakeBtn').classList.remove('hidden');
+ issue(true);
+}
+$('retakeBtn').onclick=function(){resetAll(false);};
+$('homeBtn').onclick=function(){resetAll(true);};
+function resetAll(clearName){
+ clearTimeout(homeTimer);renderToken++;
+ state={photo:null,motto:null,receipt:null};
+ if(clearName!==false){$('nameIn').value='';}
+ $('invite').classList.remove('hidden');['motto','preview','toPrint'].forEach(function(id){$(id).classList.add('hidden');});
+ $('hint').textContent='';var old=$('altLink');if(old)old.remove();
+ if(stream&&stream.active)showLive();else startCamera();
+}
+
+/* ---------------- 응원 문구 뽑기 ---------------- */
+function issue(){
+ var m=pick(MOTTOS,state.motto);state.motto=m;
+ $('invite').classList.add('hidden');$('preview').classList.add('hidden');
+ $('toPrint').classList.remove('hidden');$('printBtn').disabled=true;
+ $('hint').textContent='';var old=$('altLink');if(old)old.remove();
+ var mo=$('motto');mo.textContent=m;mo.classList.remove('hidden','reveal');void mo.offsetWidth;mo.classList.add('reveal');
+ renderReceipt();
+}
+$('redrawBtn').onclick=function(){if(state.photo)issue(true);};
+['nameIn'].forEach(function(id){
+ $(id).addEventListener('input',function(){
+  if(!state.photo||!state.motto)return;
+  clearTimeout(nameTimer);nameTimer=setTimeout(renderReceipt,350);
+ });
+ $(id).addEventListener('keydown',function(e){if(e.key==='Enter')this.blur();});
+});
+
+function renderReceipt(){
+ var token=++renderToken,done=false;
+ var go=function(){
+  if(done||token!==renderToken)return;done=true;
+  try{state.receipt=drawPassport();}catch(e){$('hint').textContent='도장판을 만들지 못했어요. 다시 찍어 주세요.';return;}
+  $('previewImg').src=state.receipt.toDataURL('image/png');
+  $('preview').classList.remove('hidden');$('printBtn').disabled=false;
+ };
+ try{
+  if(document.fonts&&document.fonts.load){
+   var all=$('nameIn').value+state.motto+CREDIT+REWARD+OPTIONAL+INTRO+SUB_TITLE+
+    STAMPS.map(function(s){return s.stage+s.title+s.mission;}).join('')+'선원이름미션도장판개를모으면이타카입국성공';
+   Promise.all([document.fonts.load("40px 'Gugi'",'오디세우스의 귀향길'),document.fonts.load("700 30px 'Noto Serif KR'",all),
+    document.fonts.load("500 18px 'Noto Sans KR'",all),document.fonts.load("700 18px 'Noto Sans KR'",all),
+    document.fonts.load("38px 'Nanum Pen Script'",all),document.fonts.load("700 30px 'Cormorant Garamond'",'ODYSSEY READING PASSPORT 0123456789'),
+    document.fonts.load("italic 600 20px 'Cormorant Garamond'",'Sail on, reader. Ithaca awaits.')]).then(go,go);
+   setTimeout(go,2500);
+  }else go();
+ }catch(e){go();}
+}
+
+/* ---------------- 감열지용 사진 (흑백 점묘) ---------------- */
+function ditherPhoto(src,w,h){
+ var c=document.createElement('canvas');c.width=w;c.height=h;
+ var x=c.getContext('2d');x.drawImage(src,0,0,w,h);
+ var im=x.getImageData(0,0,w,h),d=im.data,n=w*h,L=new Float32Array(n),hist=new Uint32Array(256);
+ for(var i=0;i<n;i++){var v=d[i*4]*.299+d[i*4+1]*.587+d[i*4+2]*.114;L[i]=v;hist[v|0]++;}
+ var lo=0,hi=255,acc=0;for(var a=0;a<256;a++){acc+=hist[a];if(acc>n*0.02){lo=a;break;}}
+ acc=0;for(var b=255;b>=0;b--){acc+=hist[b];if(acc>n*0.01){hi=b;break;}}
+ var span=Math.max(30,hi-lo);
+ for(i=0;i<n;i++){var t=Math.min(1,Math.max(0,(L[i]-lo)/span));L[i]=255*Math.pow(t,0.78);}
+ for(var y=0;y<h;y++)for(var xx=0;xx<w;xx++){
+  var k=y*w+xx,old=L[k],nw=old<128?0:255,err=(old-nw)/8;L[k]=nw;
+  if(xx+1<w)L[k+1]+=err; if(xx+2<w)L[k+2]+=err;
+  if(y+1<h){if(xx>0)L[k+w-1]+=err;L[k+w]+=err;if(xx+1<w)L[k+w+1]+=err;}
+  if(y+2<h)L[k+2*w]+=err;
+ }
+ for(i=0;i<n;i++){var g=L[i]<128?0:255;d[i*4]=d[i*4+1]=d[i*4+2]=g;d[i*4+3]=255;}
+ x.putImageData(im,0,0);return c;
+}
+
+/* 줄바꿈 (띄어쓰기 단위, 너무 긴 단어는 글자 단위) */
+function wrapText(ctx,text,maxW){
+ var words=String(text).split(/\s+/).filter(Boolean),lines=[],line='';
+ words.forEach(function(w){
+  var t=line?line+' '+w:w;
+  if(ctx.measureText(t).width<=maxW){line=t;return;}
+  if(line)lines.push(line);
+  if(ctx.measureText(w).width<=maxW){line=w;return;}
+  line='';Array.from(w).forEach(function(ch){if(ctx.measureText(line+ch).width>maxW&&line){lines.push(line);line=ch;}else line+=ch;});
+ });
+ if(line)lines.push(line);
+ return lines.length?lines:[''];
+}
+
+/* 한글 의미 단위로 고르게 줄바꿈 (조사·어미 뒤에서 끊고, 꾸며 주는 말은 뒤 단어와 붙임) */
+function semanticLines(s,maxW,measure,noForce){
+ var parts=String(s).split('\n');
+ if(parts.length>1){var acc=[];parts.forEach(function(t){if(t.trim())acc=acc.concat(semanticLines(t,maxW,measure,true));});return acc;}
+ var MOD={'그':1,'이':1,'저':1,'그의':1,'나의':1,'내':1,'네':1,'제':1,'우리의':1,'한':1,'두':1,'세':1,'모든':1,'어떤':1,'아무':1,'온':1,'새':1,'헌':1,'첫':1,'각':1,'몇':1,'여러':1,'더':1,'가장':1,'아주':1,'너무':1,'매우':1,'참':1,'잘':1,'못':1,'안':1,'다시':1,'또':1,'그런':1,'이런':1,'저런':1,'그렇게':1,'외눈':1,'다섯':1,'3발':1};
+ var END=/[,.!?…:;·”’"'」』)]$/;
+ var CONN=/(며|고|지만|는데|은데|면|니까|니|어서|아서|도록|려고|듯이|든|든지|으나|나)$/;
+ var TOPIC=/(은|는|이|가|도|에서|에게|까지|부터|처럼|보다|다|요|라|야|죠)$/;
+ var OBJ=/(을|를)$/;
+ var words=String(s).trim().split(/\s+/).filter(Boolean),n=words.length;if(!n)return [''];
+ var sw=measure(' '),ww=words.map(function(t){return measure(t);});
+ function width(i,j){var t=0;for(var k=i;k<j;k++)t+=ww[k]+(k>i?sw:0);return t;}
+ for(var z=0;z<n;z++)if(ww[z]>maxW){
+  var out=[],line='';Array.from(words.join(' ')).forEach(function(ch){if(measure(line+ch)>maxW&&line){out.push(line);line=ch;}else line+=ch;});
+  if(line)out.push(line);return out;
+ }
+ function breakCost(i){
+  var word=words[i],next=words[i+1],w=word.replace(/[“”"'()]/g,''),c=0;
+  if(END.test(word))c=-6;
+  else if(MOD[w])c=9;
+  else if(next&&/^[,.!?…”’"')]/.test(next))c=9;
+  else if(next&&/(고|어|아|여|해)$/.test(w)&&/^(싶|있|싶은|주|보)/.test(next))c=9;
+  else if(next&&/^\(/.test(next))c=-4;
+  else if(/의$/.test(w))c=7;
+  else if(/(한|된|던|할|될|운|쁜|른)$/.test(w))c=5;
+  else if(CONN.test(w))c=-3;
+  else if(TOPIC.test(w))c=-1;
+  else if(OBJ.test(w))c=1;
+  else c=2;
+  return c;
+ }
+ function best(k){
+  var avg=width(0,n)/k,INF=1e9,dp=[],from=[];
+  for(var a=0;a<=k;a++){dp.push([]);from.push([]);for(var b=0;b<=n;b++){dp[a][b]=INF;from[a][b]=-1;}}
+  dp[0][0]=0;
+  for(var L=1;L<=k;L++)for(var j=1;j<=n;j++)for(var i=L-1;i<j;i++){
+   if(dp[L-1][i]>=INF)continue;
+   var w=width(i,j);if(w>maxW)continue;
+   var d=(w-avg)/maxW,cost=d*d*40;
+   if(j-i===1&&n>2)cost+=6;
+   if(j<n)cost+=breakCost(j-1);
+   var v=dp[L-1][i]+cost;
+   if(v<dp[L][j]){dp[L][j]=v;from[L][j]=i;}
+  }
+  if(dp[k][n]>=INF)return null;
+  var lines=[],j2=n;for(var L2=k;L2>0;L2--){var i2=from[L2][j2];lines.unshift(words.slice(i2,j2).join(' '));j2=i2;}
+  return {cost:dp[k][n],lines:lines};
+ }
+ var k=1,r=null;while(!r&&k<=n){r=best(k);if(!r)k++;}
+ if(!noForce&&k===1&&n>=4&&width(0,n)>maxW*0.62){var r2=best(2);if(r2)r=r2;}  // 긴 한 줄은 두 줄로 나눠 균형 있게
+ return r.lines;
+}
+
+/* ---------------- 미션 도장판 그리기 (80mm = 576점) ---------------- */
+function drawPassport(){
+ var W=576,P=24,tmp=document.createElement('canvas');tmp.width=W;tmp.height=3600;
+ var ctx=tmp.getContext('2d'),y=18;
+ var SERIF="'Noto Serif KR','Nanum Myeongjo',serif",LATIN="'Cormorant Garamond',Georgia,serif",PEN="'Nanum Pen Script','Noto Sans KR',sans-serif",SANS="'Noto Sans KR',sans-serif",TITLE="'Gugi','Noto Serif KR',serif";
+ var name=$('nameIn').value.trim();
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,W,tmp.height);ctx.fillStyle='#000';ctx.strokeStyle='#000';
+ ctx.textBaseline='top';ctx.textAlign='center';ctx.lineJoin='round';ctx.lineCap='round';
+ function lines(s,maxW){return semanticLines(s,maxW,function(t){return ctx.measureText(t).width;});}
+ function center(s,font,lh){ctx.font=font;ctx.textAlign='center';ctx.fillText(s,W/2,y);y+=lh;}
+ function fitCenter(s,size,font,lh){var px=size;for(;;){ctx.font=font.replace('{px}',px);if(ctx.measureText(s).width<=W-P*2||px<=12)break;px--;}ctx.textAlign='center';ctx.fillText(s,W/2,y);y+=lh||Math.round(px*1.4);}
+ function fitLines(s,maxW,tpl,size){ // 글자를 최대 15% 줄여서 줄 수를 최소로
+  var minPx=Math.round(size*0.85);ctx.font=tpl.replace('{px}',minPx);var target=lines(s,maxW).length;
+  for(var px=size;px>=minPx;px--){ctx.font=tpl.replace('{px}',px);var ls=lines(s,maxW);if(ls.length<=target)return {px:px,lines:ls};}
+  ctx.font=tpl.replace('{px}',minPx);return {px:minPx,lines:lines(s,maxW)};
+ }
+ function wrapCenter(s,tpl,size,lhRatio,cx,maxW){
+  var f=fitLines(s,maxW||W-P*2,tpl,size),lh=Math.round(f.px*lhRatio);ctx.font=tpl.replace('{px}',f.px);ctx.textAlign='center';
+  f.lines.forEach(function(l){ctx.fillText(l,cx||W/2,y);y+=lh;});
+ }
+ function rule(dash){ctx.save();ctx.lineWidth=2;if(dash)ctx.setLineDash([8,6]);ctx.beginPath();ctx.moveTo(P,y+.5);ctx.lineTo(W-P,y+.5);ctx.stroke();ctx.restore();}
+ function meander(){
+  ctx.save();ctx.lineWidth=2.5;ctx.lineCap='square';ctx.lineJoin='miter';
+  var u=24,h=20,cnt=Math.floor((W-P*2)/u),x0=(W-cnt*u)/2;
+  ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x0+cnt*u,y);ctx.moveTo(x0,y+h);ctx.lineTo(x0+cnt*u,y+h);
+  for(var i=0;i<cnt;i++){var x=x0+i*u;
+   ctx.moveTo(x+3,y+h);ctx.lineTo(x+3,y+5);ctx.lineTo(x+19,y+5);ctx.lineTo(x+19,y+15);ctx.lineTo(x+9,y+15);ctx.lineTo(x+9,y+10);ctx.lineTo(x+14,y+10);}
+  ctx.stroke();ctx.restore();y+=h;
+ }
+ function ship(cx,cy){
+  ctx.save();ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(cx-100,cy-12);ctx.lineTo(cx+100,cy-12);ctx.quadraticCurveTo(cx+70,cy+18,cx,cy+18);ctx.quadraticCurveTo(cx-70,cy+18,cx-100,cy-12);ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx+98,cy-12);ctx.quadraticCurveTo(cx+120,cy-30,cx+106,cy-46);ctx.moveTo(cx-98,cy-12);ctx.quadraticCurveTo(cx-118,cy-28,cx-108,cy-42);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-12);ctx.lineTo(cx,cy-80);ctx.moveTo(cx-46,cy-72);ctx.lineTo(cx+46,cy-72);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx-40,cy-70);ctx.lineTo(cx+40,cy-70);ctx.quadraticCurveTo(cx+50,cy-46,cx+40,cy-22);ctx.lineTo(cx-40,cy-22);ctx.quadraticCurveTo(cx-30,cy-46,cx-40,cy-70);ctx.closePath();
+  ctx.fillStyle='#fff';ctx.fill();ctx.fillStyle='#000';ctx.stroke();
+  ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-38,cy-54);ctx.lineTo(cx+43,cy-54);ctx.moveTo(cx-36,cy-38);ctx.lineTo(cx+45,cy-38);ctx.stroke();
+  ctx.lineWidth=2.5;ctx.beginPath();
+  for(var i=-3;i<=3;i++){ctx.moveTo(cx+i*24,cy+6);ctx.lineTo(cx+i*24-12,cy+30);}
+  ctx.stroke();
+  ctx.beginPath();
+  for(var x=cx-150;x<cx+150;x+=28){ctx.moveTo(x,cy+38);ctx.quadraticCurveTo(x+7,cy+30,x+14,cy+38);ctx.quadraticCurveTo(x+21,cy+46,x+28,cy+38);}
+  ctx.stroke();ctx.restore();
+ }
+ // 머리말
+ meander();y+=16;
+ center('ODYSSEY · READING VOYAGE',"700 19px "+LATIN,30);
+ fitCenter('오디세우스의 귀향길',56,"{px}px "+TITLE,74);
+ fitCenter('— '+SUB_TITLE+' —',27,"700 {px}px "+SERIF,42);
+ ship(W/2,y+84);y+=140;
+ wrapCenter(INTRO,"500 {px}px "+SANS,19,1.5);
+ y+=10;rule();y+=18;
+ // 사진
+ var pw=W-P*2,ph=Math.round(pw*PHOTO_H/PHOTO_W);
+ ctx.drawImage(ditherPhoto(state.photo,pw,ph),P,y);
+ ctx.lineWidth=3;ctx.strokeRect(P+1.5,y+1.5,pw-3,ph-3);
+ y+=ph+22;
+ // 이름 (비우면 손으로 쓰는 줄)
+ center('선원 이름 · NAME',"600 15px "+SANS,22);
+ if(name){fitCenter(name,36,"700 {px}px "+SERIF,52);}
+ else{ctx.save();ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W/2-130,y+38);ctx.lineTo(W/2+130,y+38);ctx.stroke();ctx.restore();y+=52;}
+ // 응원 문구
+ rule(true);y+=18;
+ wrapCenter(state.motto,"{px}px "+PEN,38,1.16);
+ y+=10;
+ // 미션 도장판
+ rule();y+=18;
+ center('미션 도장판 · MISSION STAMPS',"700 26px "+SERIF,38);
+ center('도장 '+STAMPS.length+'개를 모으면 이타카 입국 성공!',"500 18px "+SANS,38);
+ var gap=16,cw=(W-P*2-gap)/2,B=Math.max(120,Math.min(cw,STAMP_BOX));
+ for(var r=0;r<STAMPS.length;r+=2){
+  var rowTop=y,textBottom=y;
+  [0,1].forEach(function(c){
+   var s=STAMPS[r+c];if(!s)return;
+   var i=r+c,x=P+c*(cw+gap),cx=x+cw/2,ty=rowTop;
+   ctx.font="700 19px "+SERIF;
+   var lab=(s.stage||'')+(s.en?'  ·  '+s.en:''),lw=ctx.measureText(lab).width,sx=cx-(32+8+lw)/2;
+   ctx.beginPath();ctx.arc(sx+16,ty+16,16,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='#fff';ctx.font="700 22px "+LATIN;ctx.textAlign='center';ctx.fillText(String(i+1),sx+16,ty+3);ctx.fillStyle='#000';
+   ctx.textAlign='left';ctx.font="700 19px "+SERIF;ctx.fillText(lab,sx+40,ty+5);
+   ctx.textAlign='center';ty+=42;
+   var ft=fitLines(s.title,cw,"700 {px}px "+SERIF,21);ctx.font="700 "+ft.px+"px "+SERIF;
+   ft.lines.forEach(function(l){ctx.fillText(l,cx,ty);ty+=Math.round(ft.px*1.4);});
+   ty+=2;var fm=fitLines(s.mission||'',cw,"500 {px}px "+SANS,15);ctx.font="500 "+fm.px+"px "+SANS;
+   fm.lines.forEach(function(l){ctx.fillText(l,cx,ty);ty+=Math.round(fm.px*1.5);});
+   textBottom=Math.max(textBottom,ty);
+  });
+  var boxTop=textBottom+10;
+  [0,1].forEach(function(c){
+   if(!STAMPS[r+c])return;
+   var x=P+c*(cw+gap),bx=x+(cw-B)/2;
+   ctx.save();ctx.lineWidth=3;ctx.setLineDash([10,7]);ctx.strokeRect(bx+1.5,boxTop+1.5,B-3,B-3);ctx.restore();
+   ctx.font="600 16px "+LATIN;ctx.textAlign='right';ctx.fillText('STAMP '+(r+c+1),bx+B-10,boxTop+B-26);ctx.textAlign='center';
+  });
+  y=boxTop+B+26;
+ }
+ // 선물 안내
+ rule();y+=18;
+ wrapCenter(REWARD,"700 {px}px "+SANS,21,1.45);
+ if(OPTIONAL){y+=6;wrapCenter(OPTIONAL,"500 {px}px "+SANS,17,1.5);}
+ y+=14;meander();y+=16;
+ center(CREDIT,"700 21px "+SERIF,32);
+ y+=8;
+ var out=document.createElement('canvas');out.width=W;out.height=y;out.getContext('2d').drawImage(tmp,0,0);
+ return out;
+}
+
+/* 영수증 이미지를 ESC/POS 비트맵으로 바꾸고, 끝에 용지 이송 + 자동 자르기 명령을 붙입니다. */
+function escposBytes(canvas){
+ var w=canvas.width,h=canvas.height,px=canvas.getContext('2d').getImageData(0,0,w,h).data;
+ var bw=Math.ceil(w/8),BAND=200,bands=Math.ceil(h/BAND);
+ var out=new Uint8Array(5+bands*8+bw*h+7),p=0;
+ function put(){for(var i=0;i<arguments.length;i++)out[p++]=arguments[i];}
+ put(0x1B,0x40,0x1B,0x61,0x00);
+ for(var y0=0;y0<h;y0+=BAND){
+  var bh=Math.min(BAND,h-y0);
+  put(0x1D,0x76,0x30,0x00,bw&255,bw>>8,bh&255,bh>>8);
+  for(var y=y0;y<y0+bh;y++){
+   for(var bx=0;bx<bw;bx++){
+    var b=0;
+    for(var k=0;k<8;k++){
+     var x=bx*8+k;if(x>=w)continue;
+     var i=(y*w+x)*4,lum=px[i]*0.299+px[i+1]*0.587+px[i+2]*0.114;
+     if(px[i+3]>0&&lum<160)b|=0x80>>k;
+    }
+    out[p++]=b;
+   }
+  }
+ }
+ put(0x1B,0x64,FEED_LINES);
+ put(0x1D,0x56,CUT_MODE,0x00);
+ return out.subarray(0,p);
+}
+function bytesToHex(bytes){
+ var h=new Array(bytes.length);
+ for(var i=0;i<bytes.length;i++)h[i]=(bytes[i]<16?'0':'')+bytes[i].toString(16);
+ return h.join('');
+}
+
+/* ---- Fully Kiosk 블루투스 직접 출력 ---- */
+function fullyApi(){
+ try{if(typeof fully!=='undefined'&&fully&&typeof fully.btSendHexData==='function')return fully;}catch(e){}
+ try{if(window.top&&window.top.fully&&typeof window.top.fully.btSendHexData==='function')return window.top.fully;}catch(e){}
+ return null;
+}
+function findPrinter(f){
+ var list=[];
+ try{list=JSON.parse(f.btGetDeviceListJson()||'[]');}catch(e){}
+ if(!Array.isArray(list)){var arr=[];for(var key in list)arr.push(list[key]);list=arr;}
+ function nameOf(d){return String(d&&(d.name||d.deviceName)||'');}
+ var want=PRINTER_NAME?[PRINTER_NAME]:['CPP','Printer','POS','RPP','BT'];
+ for(var i=0;i<want.length;i++){
+  for(var j=0;j<list.length;j++){
+   if(nameOf(list[j]).toUpperCase().indexOf(want[i].toUpperCase())>-1)return list[j];
+  }
+ }
+ return list.length===1?list[0]:null;
+}
+function fullyConnect(f,done){
+ try{if(f.btIsConnected()){done(true);return;}}catch(e){}
+ var dev=findPrinter(f);
+ if(!dev){done(false,'페어링된 영수증 프린터를 찾지 못했습니다. 태블릿 블루투스 설정에서 프린터를 먼저 연결해 주세요.');return;}
+ try{
+  if(dev.address||dev.mac)f.btOpenByMac(dev.address||dev.mac);
+  else f.btOpenByName(dev.name||dev.deviceName);
+ }catch(e){done(false,'프린터 연결에 실패했습니다.');return;}
+ var t0=Date.now();
+ (function wait(){
+  var ok=false;try{ok=f.btIsConnected();}catch(e){}
+  if(ok){done(true);return;}
+  if(Date.now()-t0>8000){done(false,'프린터에 연결하지 못했습니다. 프린터 전원과 블루투스를 확인해 주세요.');return;}
+  setTimeout(wait,200);
+ })();
+}
+function fullySend(f,bytes,done){
+ var hex=bytesToHex(bytes),CH=8192,pos=0;
+ (function next(){
+  if(pos>=hex.length){done(true);return;}
+  var ok=false;try{ok=f.btSendHexData(hex.substr(pos,CH));}catch(e){}
+  if(ok===false){done(false);return;}
+  pos+=CH;setTimeout(next,40);
+ })();
+}
+
+/* ---------------- 출력 ----------------
+   Fully Kiosk(JavaScript 인터페이스 켬): 블루투스로 바로 출력 (자동 자르기)
+   그 밖(크롬 등): 안드로이드 인쇄 창으로 출력 */
+var printing=false;
+$('printBtn').onclick=function(){
+ if(printing||!state.receipt)return;
+ var hint=$('hint'),canvas=state.receipt,bytes,f=fullyApi();
+ clearTimeout(homeTimer);
+ if(f){
+  try{bytes=escposBytes(canvas);}catch(e){hint.textContent='도장판 만들기에 실패했어요. 다시 시도해 주세요.';return;}
+  printing=true;$('printBtn').disabled=true;hint.textContent='도장판을 출력하고 있어요…';
+  fullyConnect(f,function(ok,msg){
+   if(!ok){printing=false;$('printBtn').disabled=false;hint.textContent=msg;return;}
+   fullySend(f,bytes,function(sent){
+    printing=false;$('printBtn').disabled=false;
+    hint.textContent=sent?'도장판이 나오면 가져가세요. 즐거운 항해 되세요!':'전송 중 연결이 끊겼어요. 버튼을 다시 눌러 주세요.';
+    if(!sent){try{f.btClose();}catch(e){}}
+    if(sent)scheduleHome();
+   });
+  });
+  return;
+ }
+ printViaDialog(canvas,hint);scheduleHome();
+};
+function scheduleHome(){clearTimeout(homeTimer);homeTimer=setTimeout(function(){resetAll(true);},AUTO_HOME_SEC*1000);}
+
+function receiptPageCss(canvas){
+ var hmm=Math.ceil(canvas.height/canvas.width*72)+2;
+ return '@page{size:80mm '+hmm+'mm;margin:0}html,body{margin:0!important;padding:0!important;background:#fff!important}img.rcptimg{width:72mm;display:block;margin:0 auto}';
+}
+function printViaDialog(canvas,hint){
+ var url=canvas.toDataURL('image/png'),css=receiptPageCss(canvas);
+ var st=$('receiptPageStyle');
+ if(!st){st=document.createElement('style');st.id='receiptPageStyle';document.head.appendChild(st);}
+ st.textContent='@media print{'+css+'.app{display:none!important}#printArea{display:block!important}}';
+ $('printArea').innerHTML='<img class="rcptimg" alt="" src="'+url+'">';
+ hint.textContent='인쇄 창에서 영수증 프린터를 고르고 [인쇄]를 눌러 주세요.';
+ var old=$('altLink');if(old)old.remove();
+ var b=document.createElement('button');b.id='altLink';b.type='button';b.className='btn sec';b.style.minHeight='48px';
+ b.textContent='인쇄 창이 안 뜨면 여기를 눌러 주세요';
+ b.onclick=function(){printInNewWindow(url,css,hint);};
+ $('toPrint').appendChild(b);
+ var img=$('printArea').querySelector('img');
+ var go=function(){setTimeout(function(){try{window.print();}catch(e){printInNewWindow(url,css,hint);}},80);};
+ if(img.complete)go();else{img.onload=go;img.onerror=go;}
+}
+function printInNewWindow(url,css,hint){
+ var w=null;try{w=window.open('','_blank');}catch(e){}
+ if(!w){hint.textContent='새 창이 막혀 있어요. 브라우저의 팝업 허용을 켜 주세요.';return;}
+ w.document.open();
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>미션 도장판</title><style>'+css+'</style></head><body><img class="rcptimg" src="'+url+'" onload="setTimeout(function(){window.print()},100)"></body></html>');
+ w.document.close();
+}
+
+startCamera();
+</script>
+</body>
+</html>
